@@ -34,6 +34,7 @@ Partial Class AppAbout
         Me.pnlTitle = New System.Windows.Forms.Panel()
         Me.btnLicense = New System.Windows.Forms.Button()
         Me.gbItems = New System.Windows.Forms.GroupBox()
+        Me.btnLangSelector = New System.Windows.Forms.Button()
         Me.Panel1 = New System.Windows.Forms.Panel()
         Me.Label1 = New System.Windows.Forms.Label()
         CType(Me.picWorcome, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -137,10 +138,11 @@ Partial Class AppAbout
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.lblInfo.BackColor = System.Drawing.Color.Transparent
         Me.lblInfo.ForeColor = System.Drawing.Color.DarkGray
-        Me.lblInfo.Location = New System.Drawing.Point(3, 3)
+        Me.lblInfo.Location = New System.Drawing.Point(481, 5)
         Me.lblInfo.Name = "lblInfo"
-        Me.lblInfo.Size = New System.Drawing.Size(588, 14)
+        Me.lblInfo.Size = New System.Drawing.Size(108, 14)
         Me.lblInfo.TabIndex = 7
+        Me.lblInfo.Text = "0.0.0.0"
         Me.lblInfo.TextAlign = System.Drawing.ContentAlignment.TopRight
         '
         'pnlTitle
@@ -169,6 +171,7 @@ Partial Class AppAbout
         '
         Me.gbItems.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.gbItems.Controls.Add(Me.btnLangSelector)
         Me.gbItems.Controls.Add(Me.picWorcome)
         Me.gbItems.Controls.Add(Me.btnLicense)
         Me.gbItems.Controls.Add(Me.btnCheckUpdates)
@@ -180,6 +183,16 @@ Partial Class AppAbout
         Me.gbItems.Size = New System.Drawing.Size(570, 147)
         Me.gbItems.TabIndex = 10
         Me.gbItems.TabStop = False
+        '
+        'btnLangSelector
+        '
+        Me.btnLangSelector.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.btnLangSelector.Location = New System.Drawing.Point(468, 19)
+        Me.btnLangSelector.Name = "btnLangSelector"
+        Me.btnLangSelector.Size = New System.Drawing.Size(96, 23)
+        Me.btnLangSelector.TabIndex = 5
+        Me.btnLangSelector.Text = "Lang Selector"
+        Me.btnLangSelector.UseVisualStyleBackColor = True
         '
         'Panel1
         '
@@ -242,4 +255,5 @@ Partial Class AppAbout
     Friend WithEvents gbItems As GroupBox
     Friend WithEvents Panel1 As Panel
     Friend WithEvents Label1 As Label
+    Friend WithEvents btnLangSelector As Button
 End Class

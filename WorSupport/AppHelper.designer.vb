@@ -37,15 +37,15 @@ Partial Class AppHelper
         Me.Panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.Panel1.Controls.Add(Me.LinkLabel2)
         Me.Panel1.Controls.Add(Me.LinkLabel1)
-        Me.Panel1.Location = New System.Drawing.Point(1, 443)
+        Me.Panel1.Location = New System.Drawing.Point(1, 436)
         Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(157, 17)
+        Me.Panel1.Size = New System.Drawing.Size(157, 24)
         Me.Panel1.TabIndex = 3
         '
         'LinkLabel2
         '
         Me.LinkLabel2.AutoSize = True
-        Me.LinkLabel2.Location = New System.Drawing.Point(90, 0)
+        Me.LinkLabel2.Location = New System.Drawing.Point(90, 5)
         Me.LinkLabel2.Name = "LinkLabel2"
         Me.LinkLabel2.Size = New System.Drawing.Size(62, 13)
         Me.LinkLabel2.TabIndex = 1
@@ -55,7 +55,7 @@ Partial Class AppHelper
         'LinkLabel1
         '
         Me.LinkLabel1.AutoSize = True
-        Me.LinkLabel1.Location = New System.Drawing.Point(3, 0)
+        Me.LinkLabel1.Location = New System.Drawing.Point(3, 5)
         Me.LinkLabel1.Name = "LinkLabel1"
         Me.LinkLabel1.Size = New System.Drawing.Size(66, 13)
         Me.LinkLabel1.TabIndex = 0
@@ -104,7 +104,7 @@ Partial Class AppHelper
         Me.MinimumSize = New System.Drawing.Size(420, 330)
         Me.Name = "AppHelper"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-        Me.Text = "AppHelper | Sistema de Ayuda Nativo de la Aplicación"
+        Me.Text = "AppHelper | Native Support Service"
         Me.Panel1.ResumeLayout(False)
         Me.Panel1.PerformLayout()
         Me.ResumeLayout(False)

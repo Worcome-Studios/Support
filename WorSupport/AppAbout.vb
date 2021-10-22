@@ -47,7 +47,7 @@
 
     Private Sub picWorcome_Click(sender As Object, e As EventArgs) Handles picWorcome.Click
         Try
-            Process.Start(SW_UsingServer)
+            Process.Start(ServerSwitch.SW_UsingServer)
         Catch
 		End Try
     End Sub
@@ -56,7 +56,13 @@
         'AppLicenser.LicenseVerification()
     End Sub
 
+    Private Sub btnLangSelector_Click(sender As Object, e As EventArgs) Handles btnLangSelector.Click
+        'LangSelector.Show()
+        'LangSelector.Focus()
+    End Sub
+
     Sub SafeMode()
         gbItems.Enabled = False
     End Sub
+
 End Class

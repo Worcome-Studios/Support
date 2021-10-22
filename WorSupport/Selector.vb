@@ -10,6 +10,7 @@
         Catch ex As Exception
             MsgBox("Error critico con el servicio WorSupport", MsgBoxStyle.Critical, "Worcome Security")
         End Try
+        AppSupport.AddToLog("Selector_Load@Selector", "Iniciado!", True)
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click

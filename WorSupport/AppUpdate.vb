@@ -4,6 +4,7 @@
 
     Private Sub AppUpdate_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Label5.Text = WorSupport.WorSupportVersion
+        Me.Text = WorSupport.ThisAssemblyProductName & " | AppUpdater Native Support Service"
         If WorSupport.WorSupportIsActived Then
             If AppService.OfflineApp = False Then
                 If WorSupport.AppServiceSuccess = False Or WorSupport.ServerSwitchSuccess = False Or WorSupport.AppStatusSuccess = False Then
@@ -15,9 +16,8 @@
                 End If
             End If
         Else
-            End 'END_PROGRAM
+            Me.Close() 'END_FORM
         End If
-        Me.Text = WorSupport.ThisAssemblyProductName & " | Updates"
         If My.Computer.FileSystem.DirectoryExists(DIRCommons) = False Then
             My.Computer.FileSystem.CreateDirectory(DIRCommons)
         End If
@@ -139,14 +139,12 @@
     End Sub
 
     Sub Lang_Español()
-        Label1.Text = "Buscar Actualizaciones"
-        Label2.Text = "Revisa si la aplicación tiene una actualización disponible, siempre es bueno manejar la última versión."
+        Label1.Text = "Comprobar Actualizaciones"
         Button1.Text = "Buscar actualizaciones"
         Button2.Text = "Asistente"
     End Sub
     Sub Lang_English()
         Label1.Text = "Search for Updates"
-        Label2.Text = "Check if the application has an update available, it is always good to handle the latest version."
         Button1.Text = "Search for updates"
         Button2.Text = "Assistant"
     End Sub

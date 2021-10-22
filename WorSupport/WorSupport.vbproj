@@ -87,6 +87,12 @@
     <Compile Include="AppHelper.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="AppLicenser.designer.vb">
+      <DependentUpon>AppLicenser.vb</DependentUpon>
+    </Compile>
+    <Compile Include="AppLicenser.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="AppService.vb" />
     <Compile Include="AppSupport.designer.vb">
       <DependentUpon>AppSupport.vb</DependentUpon>
@@ -98,6 +104,12 @@
       <DependentUpon>AppUpdate.vb</DependentUpon>
     </Compile>
     <Compile Include="AppUpdate.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LangSelector.designer.vb">
+      <DependentUpon>LangSelector.vb</DependentUpon>
+    </Compile>
+    <Compile Include="LangSelector.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />
@@ -129,11 +141,17 @@
     <EmbeddedResource Include="AppHelper.resx">
       <DependentUpon>AppHelper.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="AppLicenser.resx">
+      <DependentUpon>AppLicenser.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="AppSupport.resx">
       <DependentUpon>AppSupport.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="AppUpdate.resx">
       <DependentUpon>AppUpdate.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LangSelector.resx">
+      <DependentUpon>LangSelector.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>

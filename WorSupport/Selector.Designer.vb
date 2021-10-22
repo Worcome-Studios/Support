@@ -137,7 +137,7 @@ Partial Class Selector
         Me.Label5.Name = "Label5"
         Me.Label5.Size = New System.Drawing.Size(156, 246)
         Me.Label5.TabIndex = 6
-        Me.Label5.Text = "Apphelper" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Muestra informacion sobre el ensamblado."
+        Me.Label5.Text = "AppHelper:" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Muestra informacion sobre el ensamblado."
         '
         'Button3
         '

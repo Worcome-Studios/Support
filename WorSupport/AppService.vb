@@ -1,10 +1,85 @@
 ﻿Imports System.ComponentModel
+Imports System.IO
+Imports System.Net
 Imports System.Runtime.InteropServices
 Imports System.Text
 Imports Microsoft.Win32
+Module TelemetryService
+    Public telemetryIdentification As String
+    Dim telemetryLogContent As String
+    Dim telemetryLogContentFilePath As String
+
+    'AddTelemetryToLog("Nombre_Formulario_Aqui", "Error_o_Log_aqui", False_True)
+    Sub AddTelemetryToLog(ByVal from As String, ByVal content As String, Optional ByVal flag As Boolean = False)
+        Try
+            Dim finalContent As String = Nothing
+            If flag = True Then
+                finalContent = " [!!!]"
+            End If
+            Dim Message As String = DateTime.Now.ToString("hh:mm:ss tt dd/MM/yyyy") & finalContent & " [" & from & "] " & content
+            telemetryLogContent &= vbCrLf & Message
+            Console.WriteLine("[" & from & "]" & finalContent & " " & content)
+            'Try
+            '    My.Computer.FileSystem.WriteAllText(DIRCommons & "\Activity.log", vbCrLf & Message, True)
+            'Catch
+            'End Try
+        Catch ex As Exception
+            Console.WriteLine("[AddToLog@TelemetryService]Error: " & ex.Message)
+        End Try
+    End Sub
+
+    Sub SaveTelemetryLogContent()
+        Try
+            telemetryLogContentFilePath = _DIRCommons & "/AppFiles/" & telemetryIdentification & "[" & Format(DateAndTime.TimeOfDay, "hh") &
+                    "_" & Format(DateAndTime.TimeOfDay, "mm") &
+                    "_" & Format(DateAndTime.TimeOfDay, "ss") &
+                    "@" & My.Application.Info.AssemblyName & "]Telemetry.log"
+            If My.Computer.FileSystem.FileExists(telemetryLogContent) Then
+                My.Computer.FileSystem.DeleteFile(telemetryLogContentFilePath)
+            End If
+            My.Computer.FileSystem.WriteAllText(telemetryLogContentFilePath, telemetryLogContent, False)
+            If telemetryLogContent <> Nothing Then
+                UploadTelemetryFile(telemetryLogContentFilePath)
+            End If
+        Catch ex As Exception
+            Console.WriteLine("[SaveLogContent@TelemetryService]Error: " & ex.Message)
+        End Try
+    End Sub
+    Sub UploadTelemetryFile(ByVal dir As String)
+        'Post PHP con la ruta del archivo a subir
+        Try
+            Dim requestTLM As WebRequest = WebRequest.Create(DIR_Telemetry & "/postTelemetry.php")
+            requestTLM.Method = "POST"
+            Dim postDataTLM As String = "ident=" & My.Application.Info.AssemblyName & "_" & telemetryIdentification & "&log=" & telemetryLogContent
+            Dim byteArrayTLM As Byte() = Encoding.UTF8.GetBytes(postDataTLM)
+            requestTLM.ContentType = "application/x-www-form-urlencoded"
+            requestTLM.ContentLength = byteArrayTLM.Length
+            Dim dataStreamTLM As Stream = requestTLM.GetRequestStream()
+            dataStreamTLM.Write(byteArrayTLM, 0, byteArrayTLM.Length)
+            dataStreamTLM.Close()
+            Dim responseTLM As WebResponse = requestTLM.GetResponse()
+            Console.WriteLine(CType(responseTLM, HttpWebResponse).StatusDescription)
+            responseTLM.Close()
+        Catch ex As Exception
+        End Try
+    End Sub
+    Function CreateIdentification(ByVal largo As Integer)
+        Dim obj As New Random()
+        Dim posibles As String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+        Dim longitud As Integer = posibles.Length
+        Dim letra As Char
+        Dim longitudnuevacadena As Integer = largo
+        Dim nuevacadena As String = Nothing
+        For i As Integer = 0 To longitudnuevacadena - 1
+            letra = posibles(obj.[Next](longitud))
+            nuevacadena += letra.ToString()
+        Next
+        Return nuevacadena
+    End Function
+End Module
 Module WorSupport
-    Public ReadOnly DIRCommons As String = "C:\Users\" & System.Environment.UserName & "\AppData\Local\Worcome_Studios\Commons"
-    Public ReadOnly DIRAppService As String = DIRCommons & "\AppService"
+    Public ReadOnly _DIRCommons As String = "C:\Users\" & System.Environment.UserName & "\AppData\Local\Worcome_Studios\Commons"
+    Public ReadOnly DIRAppService As String = _DIRCommons & "\AppService"
     Public ReadOnly DIRServerSwitch As String = DIRAppService & "\ServerSwitch"
     Public ReadOnly DirAppPath As String = Application.ExecutablePath
 
@@ -51,13 +126,6 @@ Module AppService
 
     Public OfflineApp As Boolean
     Public SecureMode As Boolean
-
-    Public DIR_AppStatus As String
-    Public DIR_AppUpdate As String
-    Public DIR_AppHelper As String
-    Public DIR_AppLicenser As String
-    Public DIR_AppSupport As String
-    Public DIR_Telemetry As String
 
     Sub Snippets()
 
@@ -130,8 +198,8 @@ Module AppService
     Sub CommonActions()
         Try
             'CREACION DE LA CARPETAS CARPETAS.
-            If My.Computer.FileSystem.DirectoryExists(DIRCommons) = False Then
-                My.Computer.FileSystem.CreateDirectory(DIRCommons)
+            If My.Computer.FileSystem.DirectoryExists(_DIRCommons) = False Then
+                My.Computer.FileSystem.CreateDirectory(_DIRCommons)
             End If
             If My.Computer.FileSystem.DirectoryExists(DIRAppService) = False Then
                 My.Computer.FileSystem.CreateDirectory(DIRAppService)
@@ -140,8 +208,7 @@ Module AppService
                 My.Computer.FileSystem.CreateDirectory(DIRServerSwitch)
             End If
         Catch ex As Exception
-            Console.WriteLine("[CommonActions@AppService]Error: " & ex.Message)
-            AppSupport.AddToLog("CommonActions(0)@AppService", "Error: " & ex.Message, True)
+            AddTelemetryToLog("CommonActions(0)@AppService", "Error: " & ex.Message, True)
         End Try
         Try
             'ELIMINACION DE ARCHIVOS.
@@ -155,8 +222,7 @@ Module AppService
                 My.Computer.FileSystem.DeleteFile(ServerConfigurationFilePath)
             End If
         Catch ex As Exception
-            Console.WriteLine("[CommonActions@AppService]Error: " & ex.Message)
-            AppSupport.AddToLog("CommonActions(1)@AppService", "Error: " & ex.Message, True)
+            AddTelemetryToLog("CommonActions(1)@AppService", "Error: " & ex.Message, True)
         End Try
     End Sub
 
@@ -167,7 +233,7 @@ Module AppService
                         ByVal InitAppStatus As Boolean,
                         Optional ByVal InitAssemblyName As String = Nothing,
                         Optional ByVal InitAssemblyVersion As String = Nothing)
-        AppSupport.AddToLog("AppService", "Started with" &
+        AddTelemetryToLog("AppService", "Started with" &
                           vbCrLf & "    Offline Mode:   " & InitOffLineApp &
                           vbCrLf & "    Secure Mode " & InitSecureMode &
                           vbCrLf & "    SignRegistry " & InitSignRegistry &
@@ -197,8 +263,7 @@ Module AppService
                 AppLanguage = 0
             End If
         Catch ex As Exception
-            Console.WriteLine("[StartAppService(0)@AppService]Error: " & ex.Message)
-            AppSupport.AddToLog("StartAppService(0)@AppService", "Error: " & ex.Message, True)
+            AddTelemetryToLog("StartAppService(0)@AppService", "Error: " & ex.Message, True)
         End Try
         Try
             'INDICA EL VALOR DE LAS VARIABLES This... PARA PODER USARLAS DE FORMA GLOBAL.
@@ -213,8 +278,7 @@ Module AppService
             ServerSwitchFilePath = DIRServerSwitch & "\[" & ThisAssemblyName & "]WSS_ServerSwitch.ini"
             ServerConfigurationFilePath = DIRServerSwitch & "\[" & ThisAssemblyName & "]WSS_Configuration.ini"
         Catch ex As Exception
-            Console.WriteLine("[StartAppService(1)@AppService]Error: " & ex.Message)
-            AppSupport.AddToLog("StartAppService(1)@AppService", "Error: " & ex.Message, True)
+            AddTelemetryToLog("StartAppService(1)@AppService", "Error: " & ex.Message, True)
         End Try
         Try
             'INDICA LOS VALORES PARA LAS LLAVES DE REGISTRO DE WINDOWS SOBRE LA APLICACION ACTUAL.
@@ -228,8 +292,7 @@ Module AppService
             End If
             Reg_ShowAppServiceMessages = Boolean.TryParse(AppServiceConfig.GetValue("ShowMessages"), True)
         Catch ex As Exception
-            Console.WriteLine("[StartAppService(2)@AppService]Error: " & ex.Message)
-            AppSupport.AddToLog("StartAppService(2)@AppService", "Error: " & ex.Message, True)
+            AddTelemetryToLog("StartAppService(2)@AppService", "Error: " & ex.Message, True)
         End Try
         CommonActions()
         StartServerSwitch()
@@ -241,8 +304,8 @@ Module AppService
             AppServiceSuccess = True
         Catch
         End Try
-        AppSupport.AddToLog("AppService", "Finished with" &
-                            vbCrLf & "  WorSupportIsActived: " & WorSupportIsActived &
+        AddTelemetryToLog("AppService", "Finished with" &
+        vbCrLf & "  WorSupportIsActived: " & WorSupportIsActived &
                             vbCrLf & "      AppServiceSuccess: " & AppServiceSuccess &
                             vbCrLf & "      ServerSwitchSuccess: " & ServerSwitchSuccess &
                             vbCrLf & "      SignRegistrySuccess: " & SignRegistrySuccess &
@@ -250,10 +313,10 @@ Module AppService
         'AL FINALIZAR TODO AppService, ENTONCES ESTE METODO SERA LLAMADO
         If WorSupport.AppServiceSuccess = False Or WorSupport.ServerSwitchSuccess = False Or WorSupport.SignRegistrySuccess = False Or WorSupport.AppStatusSuccess = False Then
             'SI NO ES EXITOSO.
-
-
+        Else
+            'ES EXITOSO.
         End If
-
+        'EN GENERAL, TERMINO.
 
     End Sub
 End Module
@@ -274,6 +337,13 @@ Module ServerSwitch
     Dim DownloadURIServerSwitch As Uri
     Dim DownloadURIServerSwitchStructure As Uri
 
+    Public DIR_AppStatus As String
+    Public DIR_AppUpdate As String
+    Public DIR_AppHelper As String
+    Public DIR_AppLicenser As String
+    Public DIR_AppSupport As String
+    Public DIR_Telemetry As String
+
     Dim ServerStatus As String
     Dim IsStructureEnabled As Boolean
     Dim StructureGuide As String
@@ -293,8 +363,7 @@ Module ServerSwitch
                 Console.WriteLine("'AppService' Omitido")
             End If
         Catch ex As Exception
-            Console.WriteLine("[StartServerSwitch@ServerSwitch]Error: " & ex.Message)
-            AppSupport.AddToLog("StartServerSwitch@ServerSwitch", "Error: " & ex.Message, True)
+            AddTelemetryToLog("StartServerSwitch@ServerSwitch", "Error: " & ex.Message, True)
         End Try
     End Sub
 
@@ -314,13 +383,12 @@ Module ServerSwitch
             SW_UsingServer = GetIniValue("ServerSwitch", "UsingServer", ServerSwitchFilePath)
             SW_Structure = GetIniValue("ServerSwitch", "WSS_Structure", ServerSwitchFilePath)
         Catch ex As Exception
-            Console.WriteLine("[ReadMainServerSwitchFile(0)@ServerSwitch]Error: " & ex.Message)
-            AppSupport.AddToLog("ReadMainServerSwitchFile(0)@ServerSwitch", "Error: " & ex.Message, True)
+            AddTelemetryToLog("ReadMainServerSwitchFile(0)@ServerSwitch", "Error: " & ex.Message, True)
         End Try
         Try
             'SI ServerTrying >= 4 ENTONCES SE INTENTO DESCARGAR EL ARCHIVO Y NINGUN SERVIDOR RESPONDIO ADECUADAMENTE.
             If ServerTrying >= 4 Then
-                AppSupport.AddToLog("ServerSwitch::AppService", "All servers failed!.", True)
+                AddTelemetryToLog("ServerSwitch::AppService", "All servers failed!.", True)
                 AppServiceSuccess = False
                 ServerSwitchSuccess = False
                 SignRegistrySuccess = False
@@ -346,19 +414,18 @@ Module ServerSwitch
                         DownloaderArrayServerSwitch.CancelAsync()
                     End If
                     'SE INTENTA DESCARGAR EL ARCHIVO CON OTRO LINK DISPONIBLE.
-                    AppSupport.AddToLog("ServerSwitch::AppService", "ServerSwitch failed!. Trying with another server " & "(" & ServerIndex & ")", True)
+                    AddTelemetryToLog("ServerSwitch::AppService", "ServerSwitch failed!. Trying with another server " & "(" & ServerIndex & ")", True)
                     StartServerSwitch()
                     Exit Sub
                 End If
             End If
             'EL ARCHIVO ESTA HABITADO, ESTO INDICA QUE EL SERVIDOR RESPONDE CORRECTAMENTE. ESE SERVIDOR SE UTILIZARA.
-            AppSupport.AddToLog("ServerSwitch::AppService", "Using Server: " & UsingServer, True)
+            AddTelemetryToLog("ServerSwitch::AppService", "Using Server: " & UsingServer, True)
             'COMIENZA LA DESCARGA DEL SIGUIENTE ARCHIVO WSS_MainConfiguration.ini.
             DownloadURIServerSwitchStructure = New Uri(StructureGuide)
             DownloaderArrayServerSwitchStructure.DownloadFileAsync(DownloadURIServerSwitchStructure, ServerConfigurationFilePath)
         Catch ex As Exception
-            Console.WriteLine("[ReadMainServerSwitchFile(1)@ServerSwitch]Error: " & ex.Message)
-            AppSupport.AddToLog("ReadMainServerSwitchFile(1)@ServerSwitch", "Error: " & ex.Message, True)
+            AddTelemetryToLog("ReadMainServerSwitchFile(1)@ServerSwitch", "Error: " & ex.Message, True)
             If SecureMode Then
                 If My.Computer.Network.IsAvailable Then
                     MsgBox("No se logro conectar con los Servidores de Servicios de Worcome", MsgBoxStyle.Critical, "Worcome Security")
@@ -416,8 +483,7 @@ Module ServerSwitch
             DIR_Telemetry = Analizer(5)
 
         Catch ex As Exception
-            Console.WriteLine("[ReadMainConfigurationFile@ServerSwitch]Error: " & ex.Message)
-            AppSupport.AddToLog("ReadMainConfigurationFile@ServerSwitch", "Error: " & ex.Message, True)
+            AddTelemetryToLog("ReadMainConfigurationFile@ServerSwitch", "Error: " & ex.Message, True)
         End Try
         ServerSwitchEndingProcess()
     End Sub
@@ -459,8 +525,7 @@ Module SignRegistry
             End If
             ProcStatus_2 = True
         Catch ex As Exception
-            Console.WriteLine("[SignRegistryApplier(0)@SignRegistry]Error: " & ex.Message)
-            AppSupport.AddToLog("SignRegistryApplier(0)@SignRegistry", "Error: " & ex.Message, True)
+            AddTelemetryToLog("SignRegistryApplier(0)@SignRegistry", "Error: " & ex.Message, True)
         End Try
         Try
             'SE LEE EL REGISTRO Y SE APLICAN LOS VALORES EN SUS VARIABLES.
@@ -486,24 +551,23 @@ Module SignRegistry
                             MsgBox("A higher version was registered", MsgBoxStyle.Information, "Worcome Security")
                         End If
                     End If
-                    AppRegistry.SetValue("Version", ThisAssemblyVersion, RegistryValueKind.String)
+                    AppRegistry.SetValue("Assembly", My.Application.Info.AssemblyName, RegistryValueKind.String)
                     AppRegistry.SetValue("Assembly Path", Application.ExecutablePath, RegistryValueKind.String)
-                    AppRegistry.SetValue("Last Start", DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"), RegistryValueKind.String)
-                    AppRegistry.SetValue("Description", My.Application.Info.Description, RegistryValueKind.String)
                     AppRegistry.SetValue("Compilated", Application.ProductVersion, RegistryValueKind.String)
+                    AppRegistry.SetValue("Description", My.Application.Info.Description, RegistryValueKind.String)
+                    AppRegistry.SetValue("Last Start", DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"), RegistryValueKind.String)
+                    AppRegistry.SetValue("Version", ThisAssemblyVersion, RegistryValueKind.String)
                 End If
                 ProcStatus_3 = True
             Catch ex As Exception
-                Console.WriteLine("[SignRegistryApplier(1)@SignRegistry]Error: " & ex.Message)
-                AppSupport.AddToLog("SignRegistryApplier(1)@SignRegistry", "Error: " & ex.Message, True)
+                AddTelemetryToLog("SignRegistryApplier(1)@SignRegistry", "Error: " & ex.Message, True)
                 If Reg_ShowAppServiceMessages = True Then
                     MsgBox("The installation reg for this app could not be read", MsgBoxStyle.Critical, "Worcome Security")
                 End If
             End Try
             ProcStatus_4 = True
         Catch ex As Exception
-            Console.WriteLine("[SignRegistryApplier(2)@SignRegistry]Error: " & ex.Message)
-            AppSupport.AddToLog("SignRegistryApplier(2)@SignRegistry", "Error: " & ex.Message, True)
+            AddTelemetryToLog("SignRegistryApplier(2)@SignRegistry", "Error: " & ex.Message, True)
         End Try
         If ProcStatus_1 And ProcStatus_2 And ProcStatus_3 And ProcStatus_4 Then
             SignRegistrySuccess = True
@@ -539,7 +603,12 @@ Module AppStatus
     Public Installer_Status As Boolean
     Public Installer_BinDownload As String
     Public Installer_InsDownload As String
-    Public Installer_BitArch As String
+    Public Installer_CanDowngrade As Boolean
+    Public Installer_NeedStartUp As String
+    Public Installer_NeedRestart As Boolean
+    Public Installer_NeedElevateAccess As Boolean
+    Public Installer_InstallFolder As String
+    Public Installer_BitArch As SByte
 
     Sub AppStatusStep()
         Try
@@ -553,8 +622,7 @@ Module AppStatus
                 AppStatusEndingProcess()
             End If
         Catch ex As Exception
-            Console.WriteLine("[AppStatusStep@AppStatus]Error: " & ex.Message)
-            AppSupport.AddToLog("AppStatusStep@AppStatus", "Error: " & ex.Message, True)
+            AddTelemetryToLog("AppStatusStep@AppStatus", "Error: " & ex.Message, True)
         End Try
     End Sub
 
@@ -579,11 +647,15 @@ Module AppStatus
             Installer_Status = Boolean.Parse(GetIniValue("Installer", "Status", AppServiceFilePath))
             Installer_BinDownload = GetIniValue("Installer", "BinDownload", AppServiceFilePath)
             Installer_InsDownload = GetIniValue("Installer", "InsDownload", AppServiceFilePath)
+            Installer_CanDowngrade = Boolean.Parse(GetIniValue("Installer", "CanDowngrade", AppServiceFilePath))
+            Installer_NeedStartUp = GetIniValue("Installer", "NeedStartUp", AppServiceFilePath)
+            Installer_NeedRestart = Boolean.Parse(GetIniValue("Installer", "NeedRestart", AppServiceFilePath))
+            Installer_NeedElevateAccess = Boolean.Parse(GetIniValue("Installer", "NeedElevateAccess", AppServiceFilePath))
+            Installer_InstallFolder = GetIniValue("Installer", "InstallFolder", AppServiceFilePath)
             Installer_BitArch = GetIniValue("Installer", "BitArch", AppServiceFilePath)
             ProcStatus_2 = True
         Catch ex As Exception
-            Console.WriteLine("[ReadAppStatusFile(0)@AppStatus]Error: " & ex.Message)
-            AppSupport.AddToLog("ReadAppStatusFile(0)@AppStatus", "Error: " & ex.Message, True)
+            AddTelemetryToLog("ReadAppStatusFile(0)@AppStatus", "Error: " & ex.Message, True)
         End Try
         Try
             'INICIAR ACCIONES DEPENDIENDO DE ALGUNAS VARIABLES
@@ -614,24 +686,23 @@ Module AppStatus
                     If (result > 0) Then
                         Console.WriteLine("[AppStatus]La version actual esta por sobre la del servidor.")
                     ElseIf (result < 0) Then
-                        If Updates_Message <> NullResponse Then
-                            MsgBox(Updates_Message, MsgBoxStyle.Information, "Worcome Security")
-                        End If
-                        If Updates_Critical = True Then
-                            Console.WriteLine("[AppStatus]Actualizacion critica.")
-                            AppUpdate.CheckUpdater()
-                            If My.Computer.FileSystem.FileExists(DIRCommons & "\Updater.exe") = True Then
-                                MsgBox("Se iniciara un asistente de actualizacion", MsgBoxStyle.Information, "Worcome Security")
-                                Process.Start(DIRCommons & "\Updater.exe", "/SearchForUpdates -" & ThisAssemblyVersion & " -" & ThisAssemblyVersion & " -" & DirAppPath)
-                            Else
-                                AppUpdate.ShowDialog()
-                            End If
-                            If Updates_CanUseOldVersion = False Then
-                                End 'END_PROGRAM
-                            End If
-                        Else
-                            Console.WriteLine("[AppStatus]Una nueva version esta disponible.")
-                        End If
+                        'If Updates_Message <> NullResponse Then
+                        '    MsgBox(Updates_Message, MsgBoxStyle.Information, "Worcome Security")
+                        'End If
+                        'If Updates_Critical = True Then
+                        '    Console.WriteLine("[AppStatus]Actualizacion critica.")
+                        '    AppUpdate.CheckUpdater()
+                        '    If My.Computer.FileSystem.FileExists(DIRCommons & "\Updater.exe") = True Then
+                        '        MsgBox("Se iniciara un asistente de actualizacion", MsgBoxStyle.Information, "Worcome Security")
+                        '        Process.Start(DIRCommons & "\Updater.exe", "/SearchForUpdates -" & ThisAssemblyVersion & " -" & ThisAssemblyVersion & " -" & DirAppPath)
+                        '    Else
+                        '        AppUpdate.ShowDialog()
+                        '    End If
+                        '    If Updates_CanUseOldVersion = False Then
+                        '        End 'END_PROGRAM
+                        '    End If
+                        'End If
+                        Console.WriteLine("[AppStatus]Una nueva version esta disponible.")
                     Else
                         Console.WriteLine("[AppStatus]Version actualizada.")
                     End If
@@ -645,8 +716,7 @@ Module AppStatus
             End If
             ProcStatus_3 = True
         Catch ex As Exception
-            Console.WriteLine("[ReadAppStatusFile(1)@AppStatus]Error: " & ex.Message)
-            AppSupport.AddToLog("ReadAppStatusFile(1)@AppStatus", "Error: " & ex.Message, True)
+            AddTelemetryToLog("ReadAppStatusFile(1)@AppStatus", "Error: " & ex.Message, True)
             If SecureMode Then
                 If My.Computer.Network.IsAvailable Then
                     MsgBox("No se logro conectar con los Servidores de Servicios de Worcome", MsgBoxStyle.Critical, "Worcome Security")

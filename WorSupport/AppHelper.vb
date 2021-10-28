@@ -22,13 +22,13 @@
     Sub Start()
         Try
             If My.Computer.Network.IsAvailable Then
-                WebBrowser1.Navigate(AppService.DIR_AppHelper & "/" & WorSupport.ThisAssemblyName & ".html")
+                WebBrowser1.Navigate(ServerSwitch.DIR_AppHelper & "/" & WorSupport.ThisAssemblyName & ".html")
             Else
                 MsgBox("Debe conectarse a internet", MsgBoxStyle.Information, "Worcome Security")
                 Me.Close() 'END_FORM
             End If
         Catch ex As Exception
-            AppSupport.AddToLog("Start@AppHelper", "Error: " & ex.Message, True)
+            AddTelemetryToLog("Start@AppHelper", "Error: " & ex.Message, True)
         End Try
     End Sub
 
@@ -49,15 +49,15 @@
                 WebBrowser1.Visible = True
             End If
         Catch ex As Exception
-            AppSupport.AddToLog("WebBrowser1_DocumentCompleted@AppHelper", "Error: " & ex.Message, True)
+            AddTelemetryToLog("WebBrowser1_DocumentCompleted@AppHelper", "Error: " & ex.Message, True)
         End Try
     End Sub
 
     Private Sub LinkLabel1_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel1.LinkClicked
-        WebBrowser1.Navigate(AppService.DIR_AppHelper & "/" & WorSupport.ThisAssemblyName & ".html")
+        WebBrowser1.Navigate(ServerSwitch.DIR_AppHelper & "/" & WorSupport.ThisAssemblyName & ".html")
     End Sub
 
     Private Sub LinkLabel2_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel2.LinkClicked
-        WebBrowser1.Navigate(AppService.DIR_AppHelper & "/AboutApps/" & WorSupport.ThisAssemblyName & ".html")
+        WebBrowser1.Navigate(ServerSwitch.DIR_AppHelper & "/AboutApps/" & WorSupport.ThisAssemblyName & ".html")
     End Sub
 End Class

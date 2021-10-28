@@ -23,10 +23,10 @@ Partial Class AppSupport
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(AppSupport))
-        Me.Button1 = New System.Windows.Forms.Button()
-        Me.TextBox2 = New System.Windows.Forms.TextBox()
+        Me.btnSendMessage = New System.Windows.Forms.Button()
+        Me.tbUserMessage = New System.Windows.Forms.TextBox()
         Me.Label4 = New System.Windows.Forms.Label()
-        Me.TextBox1 = New System.Windows.Forms.TextBox()
+        Me.tbUserEmail = New System.Windows.Forms.TextBox()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.Label1 = New System.Windows.Forms.Label()
@@ -34,28 +34,28 @@ Partial Class AppSupport
         Me.Label6 = New System.Windows.Forms.Label()
         Me.SuspendLayout()
         '
-        'Button1
+        'btnSendMessage
         '
-        Me.Button1.Anchor = System.Windows.Forms.AnchorStyles.Bottom
-        Me.Button1.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Button1.ForeColor = System.Drawing.Color.Black
-        Me.Button1.Location = New System.Drawing.Point(227, 452)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(120, 37)
-        Me.Button1.TabIndex = 2
-        Me.Button1.Text = "Send >"
-        Me.Button1.UseVisualStyleBackColor = True
+        Me.btnSendMessage.Anchor = System.Windows.Forms.AnchorStyles.Bottom
+        Me.btnSendMessage.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.btnSendMessage.ForeColor = System.Drawing.Color.Black
+        Me.btnSendMessage.Location = New System.Drawing.Point(227, 452)
+        Me.btnSendMessage.Name = "btnSendMessage"
+        Me.btnSendMessage.Size = New System.Drawing.Size(120, 37)
+        Me.btnSendMessage.TabIndex = 2
+        Me.btnSendMessage.Text = "Send >"
+        Me.btnSendMessage.UseVisualStyleBackColor = True
         '
-        'TextBox2
+        'tbUserMessage
         '
-        Me.TextBox2.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+        Me.tbUserMessage.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.TextBox2.Location = New System.Drawing.Point(12, 196)
-        Me.TextBox2.Multiline = True
-        Me.TextBox2.Name = "TextBox2"
-        Me.TextBox2.Size = New System.Drawing.Size(550, 250)
-        Me.TextBox2.TabIndex = 1
+        Me.tbUserMessage.Location = New System.Drawing.Point(12, 196)
+        Me.tbUserMessage.Multiline = True
+        Me.tbUserMessage.Name = "tbUserMessage"
+        Me.tbUserMessage.Size = New System.Drawing.Size(550, 250)
+        Me.tbUserMessage.TabIndex = 1
         '
         'Label4
         '
@@ -67,14 +67,14 @@ Partial Class AppSupport
         Me.Label4.TabIndex = 8
         Me.Label4.Text = "Your message:"
         '
-        'TextBox1
+        'tbUserEmail
         '
-        Me.TextBox1.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+        Me.tbUserEmail.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.TextBox1.Location = New System.Drawing.Point(12, 124)
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(267, 20)
-        Me.TextBox1.TabIndex = 0
+        Me.tbUserEmail.Location = New System.Drawing.Point(12, 124)
+        Me.tbUserEmail.Name = "tbUserEmail"
+        Me.tbUserEmail.Size = New System.Drawing.Size(267, 20)
+        Me.tbUserEmail.TabIndex = 0
         '
         'Label3
         '
@@ -136,10 +136,10 @@ Partial Class AppSupport
         Me.ClientSize = New System.Drawing.Size(574, 501)
         Me.Controls.Add(Me.Label6)
         Me.Controls.Add(Me.Label5)
-        Me.Controls.Add(Me.Button1)
-        Me.Controls.Add(Me.TextBox2)
+        Me.Controls.Add(Me.btnSendMessage)
+        Me.Controls.Add(Me.tbUserMessage)
         Me.Controls.Add(Me.Label4)
-        Me.Controls.Add(Me.TextBox1)
+        Me.Controls.Add(Me.tbUserEmail)
         Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.Label2)
         Me.Controls.Add(Me.Label1)
@@ -154,10 +154,10 @@ Partial Class AppSupport
         Me.PerformLayout()
 
     End Sub
-    Friend WithEvents Button1 As Button
-    Friend WithEvents TextBox2 As TextBox
+    Friend WithEvents btnSendMessage As Button
+    Friend WithEvents tbUserMessage As TextBox
     Friend WithEvents Label4 As Label
-    Friend WithEvents TextBox1 As TextBox
+    Friend WithEvents tbUserEmail As TextBox
     Friend WithEvents Label3 As Label
     Friend WithEvents Label2 As Label
     Friend WithEvents Label1 As Label

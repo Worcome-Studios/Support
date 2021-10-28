@@ -201,7 +201,7 @@ Public Class AppLicenser
             If My.Computer.FileSystem.FileExists(pathLicense) = True Then
                 My.Computer.FileSystem.DeleteFile(pathLicense)
             End If
-            Dim URLLicFile As String = AppService.DIR_AppLicenser & "/[" & Ident & "]" & My.Application.Info.AssemblyName & ".lic"
+            Dim URLLicFile As String = ServerSwitch.DIR_AppLicenser & "/[" & Ident & "]" & My.Application.Info.AssemblyName & ".lic"
             My.Computer.Network.DownloadFile(URLLicFile, pathLicense)
             ReadLicenseInfo(pathLicense)
         Catch ex As Exception
@@ -321,7 +321,7 @@ Public Class AppLicenser
     '   Solucion: si el usuario no tiene conexion, la activacion no se realiza. Obligadamente debera estar conectado
     Sub ClaimRemoteLicense() 'esto deberia ser una funcion para ver si se ha claimeado la licencia.
         Try
-            Dim request As WebRequest = WebRequest.Create(AppService.DIR_AppLicenser & "/postLicense.php") 'serverswitch debe indexar la ruta general en donde se encuentran todas
+            Dim request As WebRequest = WebRequest.Create(ServerSwitch.DIR_AppLicenser & "/postLicense.php") 'serverswitch debe indexar la ruta general en donde se encuentran todas
             request.Method = "POST"
             Dim content As String = "#AppLicensor " & WorSupport.WorSupportVersion & " (" & WorSupport.WorSupportCompilate & ") | Worcome Server Services | Sistema de Licencias" &
                     vbCrLf & "LicStatus>Claimed" &

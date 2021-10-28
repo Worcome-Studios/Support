@@ -39,7 +39,7 @@
     End Sub
 
     Private Sub LinkLabel1_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles LinkLabel1.LinkClicked
-        Process.Start(AppService.DIR_AppHelper & "/AboutApps/" & WorSupport.ThisAssemblyName & ".html#WhatsNew")
+        Process.Start(ServerSwitch.DIR_AppHelper & "/AboutApps/" & WorSupport.ThisAssemblyName & ".html#WhatsNew")
     End Sub
 
     Private Sub btnCheckUpdates_Click(sender As Object, e As EventArgs) Handles Button1.Click
@@ -70,7 +70,7 @@
             AppStatus.Installer_InsDownload = GetIniValue("Installer", "InsDownload", AppServiceFilePath)
             AppStatus.Installer_BitArch = GetIniValue("Installer", "BitArch", AppServiceFilePath)
         Catch ex As Exception
-            AppSupport.AddToLog("CheckForUpdates(0)@AppUpdater", "Error: " & ex.Message, True)
+            AddTelemetryToLog("CheckForUpdates(0)@AppUpdater", "Error: " & ex.Message, True)
         End Try
         Try
             Dim versionLocal = New Version(WorSupport.ThisAssemblyVersion)
@@ -109,7 +109,7 @@
                 Me.Close() 'END_FORM
             End If
         Catch ex As Exception
-            AppSupport.AddToLog("CheckForUpdates(1)@AppUpdater", "Error: " & ex.Message, True)
+            AddTelemetryToLog("CheckForUpdates(1)@AppUpdater", "Error: " & ex.Message, True)
         End Try
         Button1.Enabled = True
     End Sub
@@ -121,7 +121,7 @@
                     My.Computer.FileSystem.DeleteFile(DIRCommons & "\AppUpdaterAddIn.zip")
                 End If
                 'No existe, se debe descargar.
-                My.Computer.Network.DownloadFile(AppService.DIR_AppUpdate & "/AppUpdaterAddIn.zip", DIRCommons & "\Updater.zip")
+                My.Computer.Network.DownloadFile(ServerSwitch.DIR_AppUpdate & "/AppUpdaterAddIn.zip", DIRCommons & "\Updater.zip")
                 'descomprime
                 Dim shObj As Object = Activator.CreateInstance(Type.GetTypeFromProgID("Shell.Application"))
                 Dim outputFolder As String = DIRCommons
@@ -134,7 +134,7 @@
                 IO.File.Delete(DIRCommons & "\Updater.zip")
             End If
         Catch ex As Exception
-            AppSupport.AddToLog("CheckUpdater@AppUpdater", "Error: " & ex.Message, True)
+            AddTelemetryToLog("CheckUpdater@AppUpdater", "Error: " & ex.Message, True)
         End Try
     End Sub
 

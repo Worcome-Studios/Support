@@ -197,6 +197,7 @@ Module AppService
 
     Sub CommonActions()
         Try
+            AddTelemetryToLog("AppService", "Creando carpetas comunes...", False)
             'CREACION DE LA CARPETAS CARPETAS.
             If My.Computer.FileSystem.DirectoryExists(_DIRCommons) = False Then
                 My.Computer.FileSystem.CreateDirectory(_DIRCommons)
@@ -211,6 +212,7 @@ Module AppService
             AddTelemetryToLog("CommonActions(0)@AppService", "Error: " & ex.Message, True)
         End Try
         Try
+            AddTelemetryToLog("AppService", "Eliminando archivos residuales...", False)
             'ELIMINACION DE ARCHIVOS.
             If My.Computer.FileSystem.FileExists(AppServiceFilePath) = True Then
                 My.Computer.FileSystem.DeleteFile(AppServiceFilePath)
@@ -234,12 +236,12 @@ Module AppService
                         Optional ByVal InitAssemblyName As String = Nothing,
                         Optional ByVal InitAssemblyVersion As String = Nothing)
         AddTelemetryToLog("AppService", "Started with" &
-                          vbCrLf & "    Offline Mode:   " & InitOffLineApp &
-                          vbCrLf & "    Secure Mode " & InitSecureMode &
-                          vbCrLf & "    SignRegistry " & InitSignRegistry &
-                          vbCrLf & "    AppStatus " & InitAppStatus &
-                          vbCrLf & "        AssemblyName " & InitAssemblyName &
-                          vbCrLf & "        AssemblyVersion " & InitAssemblyVersion, True)
+                          vbCrLf & "    Offline Mode: " & InitOffLineApp &
+                          vbCrLf & "    Secure Mode: " & InitSecureMode &
+                          vbCrLf & "    SignRegistry: " & InitSignRegistry &
+                          vbCrLf & "    AppStatus: " & InitAppStatus &
+                          vbCrLf & "        AssemblyName: " & InitAssemblyName &
+                          vbCrLf & "        AssemblyVersion: " & InitAssemblyVersion, True)
         'APLICACION DE LAS VARIABLES PARA USO GLOBAL.
         OfflineApp = InitOffLineApp
         SecureMode = InitSecureMode
@@ -262,10 +264,12 @@ Module AppService
             Else
                 AppLanguage = 0
             End If
+            AddTelemetryToLog("AppService", "Lenguaje seleccionado: " & AppLanguage, False)
         Catch ex As Exception
             AddTelemetryToLog("StartAppService(0)@AppService", "Error: " & ex.Message, True)
         End Try
         Try
+            AddTelemetryToLog("AppService", "Aplicando variables globales...", False)
             'INDICA EL VALOR DE LAS VARIABLES This... PARA PODER USARLAS DE FORMA GLOBAL.
             'ADEMAS ES UTIL PARA SOFTWARE COMO WorApps y WorInstaller.
             '   ASI SE PUEDE OBTENER INFORMACION SOBRE ENSAMBLADOS QUE NO ES NECESARIAMENTE EL ACTUAL.
@@ -281,6 +285,7 @@ Module AppService
             AddTelemetryToLog("StartAppService(1)@AppService", "Error: " & ex.Message, True)
         End Try
         Try
+            AddTelemetryToLog("AppService", "Verificando datos de configuracion...", False)
             'INDICA LOS VALORES PARA LAS LLAVES DE REGISTRO DE WINDOWS SOBRE LA APLICACION ACTUAL.
             AppRegistry = Registry.CurrentUser.OpenSubKey("Software\\Worcome_Studios\\" & ThisAssemblyName, True)
             'CREACION DEL REGISTRO DE WINDOWS PARA LA CONFIGURACION DE AppService.
@@ -299,6 +304,7 @@ Module AppService
     End Sub
 
     Sub AppServiceEndingProcess()
+        AddTelemetryToLog("AppService", "AppService ha finalizado!", False)
         Try
             AppServiceConfig.SetValue("Working Server", SW_UsingServer, RegistryValueKind.String)
             AppServiceSuccess = True
@@ -313,8 +319,10 @@ Module AppService
         'AL FINALIZAR TODO AppService, ENTONCES ESTE METODO SERA LLAMADO
         If WorSupport.AppServiceSuccess = False Or WorSupport.ServerSwitchSuccess = False Or WorSupport.SignRegistrySuccess = False Or WorSupport.AppStatusSuccess = False Then
             'SI NO ES EXITOSO.
+            AddTelemetryToLog("AppService", "   Finalizacion no exitosa.", False)
         Else
             'ES EXITOSO.
+            AddTelemetryToLog("AppService", "   Finalizacion exitosa.", False)
         End If
         'EN GENERAL, TERMINO.
 
@@ -356,11 +364,12 @@ Module ServerSwitch
             If OfflineApp = False Then
                 'OBTENER EL ARCHIVO ServerSwitch.
                 '   SI FALLA, ENTONCES SE VOLVERA AQUI Y SE INCREMENTARA EL SERVIDOR CON EL QUE SE DEBE INTENTAR.
+                AddTelemetryToLog("ServerSwitch::AppService", "ServerSwitch iniciado!", False)
                 ServerTrying = ServerTrying + 1
                 DownloadURIServerSwitch = New Uri(ServerSwitchURLs(ServerIndex))
                 DownloaderArrayServerSwitch.DownloadFileAsync(DownloadURIServerSwitch, ServerSwitchFilePath)
             Else
-                Console.WriteLine("'AppService' Omitido")
+                AddTelemetryToLog("ServerSwitch::AppService", "ServerSwitch omitido.", False)
             End If
         Catch ex As Exception
             AddTelemetryToLog("StartServerSwitch@ServerSwitch", "Error: " & ex.Message, True)
@@ -374,6 +383,7 @@ Module ServerSwitch
 
     Sub ReadMainServerSwitchFile()
         Try
+            AddTelemetryToLog("ServerSwitch::AppService", "Leyendo datos del servidor (" & ServerTrying & ")...", False)
             'LEE LOS VALORES DEL ARCHIVO Y LOS APLICA A SUS VARIABLES.
             UsingServer = GetIniValue("WSS", "Server", ServerSwitchFilePath)
             ServerStatus = GetIniValue("WSS", "Status", ServerSwitchFilePath)
@@ -383,7 +393,7 @@ Module ServerSwitch
             SW_UsingServer = GetIniValue("ServerSwitch", "UsingServer", ServerSwitchFilePath)
             SW_Structure = GetIniValue("ServerSwitch", "WSS_Structure", ServerSwitchFilePath)
         Catch ex As Exception
-            AddTelemetryToLog("ReadMainServerSwitchFile(0)@ServerSwitch", "Error: " & ex.Message, True)
+            AddTelemetryToLog("ServerSwitch::AppService", "Error: " & ex.Message, True)
         End Try
         Try
             'SI ServerTrying >= 4 ENTONCES SE INTENTO DESCARGAR EL ARCHIVO Y NINGUN SERVIDOR RESPONDIO ADECUADAMENTE.
@@ -396,9 +406,11 @@ Module ServerSwitch
                 ServerTrying = 0
                 Exit Sub
             Else
+                AddTelemetryToLog("ServerSwitch::AppService", "Verificando variables del servidor...", False)
                 'SE VERIFICA QUE LAS VARIABLES UsingServer Y ServerStatus ESTEN HABITADAS. SI NO ENTONCES EL ARCHIVO ESTA VACIO, ESTO INDICA
                 ' QUE EL SERVIDOR ESTA CAIDO O NO HA RESPONDIDO CORRECTAMENTE.
                 If UsingServer = Nothing Or ServerStatus = Nothing Then
+                    AddTelemetryToLog("ServerSwitch::AppService", "Variables del servidor incorrectas. Intentando con otro servidor...", False)
                     If ServerIndex = 0 Then
                         ServerIndex = 1
                     ElseIf ServerIndex = 1 Then
@@ -444,6 +456,7 @@ Module ServerSwitch
 
     Sub ReadMainConfigurationFile()
         Try
+            AddTelemetryToLog("ServerSwitch::AppService", "Leyendo valores del servidor...", False)
             'DIR_AppService = GetIniValue("ServerSwitch", "DIR_AppService", ServerConfigurationFilePath)
             'DIR_AppUpdate = GetIniValue("ServerSwitch", "DIR_AppUpdate", ServerConfigurationFilePath)
             'DIR_AppHelper = GetIniValue("ServerSwitch", "DIR_AppHelper", ServerConfigurationFilePath)
@@ -489,6 +502,7 @@ Module ServerSwitch
     End Sub
 
     Sub ServerSwitchEndingProcess()
+        AddTelemetryToLog("ServerSwitch::AppService", "ServerSwitch ha finalizado!", False)
         ServerSwitchSuccess = True
         SignRegistryStep()
     End Sub
@@ -508,10 +522,11 @@ Module SignRegistry
 
     Sub SignRegistryStep()
         If SignRegistryStatus Then
+            AddTelemetryToLog("SignRegistry::AppService", "SignRegistry iniciado!", False)
             ProcStatus_1 = True
             SignRegistryApplier()
         Else
-            Console.WriteLine("[AppService]'SignRegistry' Omitido")
+            AddTelemetryToLog("SignRegistry::AppService", "SignRegistry omitido.", False)
             SignRegistryEndingProcess()
         End If
     End Sub
@@ -528,6 +543,7 @@ Module SignRegistry
             AddTelemetryToLog("SignRegistryApplier(0)@SignRegistry", "Error: " & ex.Message, True)
         End Try
         Try
+            AddTelemetryToLog("SignRegistry::AppService", "Leyendo datos del registro...", False)
             'SE LEE EL REGISTRO Y SE APLICAN LOS VALORES EN SUS VARIABLES.
             Reg_Assembly = AppRegistry.GetValue("Assembly")
             Reg_Version = AppRegistry.GetValue("Version")
@@ -538,6 +554,7 @@ Module SignRegistry
                 'SI ES LA APLICACION ORIGINAL, ENTONCES PODRA HACER CAMBIOS.
                 'SI NO, ENTONCES SE TRATA DE UN "IMPOSTOR" (WorApps, WorInstaller y otros especificos)
                 If My.Application.Info.AssemblyName = ThisAssemblyName Then
+                    AddTelemetryToLog("SignRegistry::AppService", "Comparando versiones...", False)
                     If Reg_Version = Nothing Then Reg_Version = My.Application.Info.Version.ToString
                     Dim versionApp = New Version(ThisAssemblyVersion)
                     Dim versionReg = New Version(Reg_Version)
@@ -551,6 +568,7 @@ Module SignRegistry
                             MsgBox("A higher version was registered", MsgBoxStyle.Information, "Worcome Security")
                         End If
                     End If
+                    AddTelemetryToLog("SignRegistry::AppService", "Registrando valores actuales...", False)
                     AppRegistry.SetValue("Assembly", My.Application.Info.AssemblyName, RegistryValueKind.String)
                     AppRegistry.SetValue("Assembly Path", Application.ExecutablePath, RegistryValueKind.String)
                     AppRegistry.SetValue("Compilated", Application.ProductVersion, RegistryValueKind.String)
@@ -576,6 +594,7 @@ Module SignRegistry
     End Sub
 
     Sub SignRegistryEndingProcess()
+        AddTelemetryToLog("SignRegistry::AppService", "SignRegistry ha finalizado!", False)
         AppStatusStep()
     End Sub
 End Module
@@ -613,12 +632,13 @@ Module AppStatus
     Sub AppStatusStep()
         Try
             If AppStatusStatus Then
+                AddTelemetryToLog("AppStatus::AppService", "AppStatus iniciado!", False)
                 'COMIENZA LA DESCARGA DEL ARCHIVO WorAppName.ini
                 DownloadURIAppService = New Uri(DIR_AppStatus & "/" & ThisAssemblyName & ".ini")
                 DownloaderArrayAppService.DownloadFileAsync(DownloadURIAppService, AppServiceFilePath)
                 ProcStatus_1 = True
             Else
-                Console.WriteLine("[AppService]'AppStatus' Omitido")
+                AddTelemetryToLog("AppStatus::AppService", "AppStatus omitido.", False)
                 AppStatusEndingProcess()
             End If
         Catch ex As Exception
@@ -633,6 +653,7 @@ Module AppStatus
 
     Sub ReadAppStatusFile()
         Try
+            AddTelemetryToLog("AppStatus::AppService", "Leyendo valores del ensamblado...", False)
             'LEER LOS VALORES DEL ARCHIVO Y APLICARLOS A LAS VARIABLES
             Assembly_Status = Boolean.Parse(GetIniValue("Assembly", "Status", AppServiceFilePath))
             Assembly_Name = GetIniValue("Assembly", "Name", AppServiceFilePath)
@@ -662,29 +683,29 @@ Module AppStatus
             If Assembly_Status Then
                 If Runtime_VisitURL <> NullResponse Then
                     Process.Start(Runtime_VisitURL)
-                    Console.WriteLine("[AppStatus]Visitando URL: " & Runtime_VisitURL)
+                    AddTelemetryToLog("AppStatus::AppService", "Visitando URL: " & Runtime_VisitURL, False)
                 End If
                 If Runtime_Message <> NullResponse Then
                     MsgBox(Runtime_Message, MsgBoxStyle.Information, "Worcome Security")
-                    Console.WriteLine("[AppStatus]Mostrando mensaje: " & Runtime_Message)
+                    AddTelemetryToLog("AppStatus::AppService", "Mostrando mensaje: " & Runtime_Message, False)
                 End If
                 If Runtime_ArgumentLine <> NullResponse Then
                     Process.Start(DirAppPath, Runtime_ArgumentLine)
-                    Console.WriteLine("[AppStatus]Reiniciando con parametros: " & Runtime_ArgumentLine)
+                    AddTelemetryToLog("AppStatus::AppService", "Reiniciando con parametros: " & Runtime_ArgumentLine, False)
                     End
                 End If
                 If Runtime_Command <> NullResponse Then
                     Process.Start(Runtime_Command)
-                    Console.WriteLine("[AppStatus]Ejecutando comando: " & Runtime_Command)
+                    AddTelemetryToLog("AppStatus::AppService", "Ejecutando comando: " & Runtime_Command, False)
                 End If
                 If Assembly_Version = "*.*.*.*" Then
-                    Console.WriteLine("[AppStatus]Comprobacion de version omitida.")
+                    AddTelemetryToLog("AppStatus::AppService", "Comprobacion de version omitida.")
                 Else
                     Dim versionLocal = New Version(ThisAssemblyVersion)
                     Dim versionServidor = New Version(Assembly_Version)
                     Dim result = versionLocal.CompareTo(versionServidor)
                     If (result > 0) Then
-                        Console.WriteLine("[AppStatus]La version actual esta por sobre la del servidor.")
+                        AddTelemetryToLog("AppStatus::AppService", "La version actual esta por sobre la del servidor.")
                     ElseIf (result < 0) Then
                         'If Updates_Message <> NullResponse Then
                         '    MsgBox(Updates_Message, MsgBoxStyle.Information, "Worcome Security")
@@ -702,9 +723,9 @@ Module AppStatus
                         '        End 'END_PROGRAM
                         '    End If
                         'End If
-                        Console.WriteLine("[AppStatus]Una nueva version esta disponible.")
+                        AddTelemetryToLog("AppStatus::AppService", "Una nueva version esta disponible.")
                     Else
-                        Console.WriteLine("[AppStatus]Version actualizada.")
+                        AddTelemetryToLog("AppStatus::AppService", "Version actualizada.")
                     End If
                 End If
             Else
@@ -733,6 +754,7 @@ Module AppStatus
     End Sub
 
     Sub AppStatusEndingProcess()
+        AddTelemetryToLog("AppStatus::AppService", "AppStatus ha finalizado!", False)
         AppServiceEndingProcess()
     End Sub
 End Module
